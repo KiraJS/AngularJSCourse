@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="fitnessTracker">
+<head>
+  <meta charset="UTF-8">
+  <title>Document</title>
+  <link rel="stylesheet" href="app.css">
+  <link rel="stylesheet" href="theme.css" >
+</head>
+<body ng-cloak>
+  <input type="text" ng-model="test">
+  <p>{{test.length}}</p>
+  <div ng-controller="MainCtrl as mc">{{mc.hello_message}}</div>
+  <div ng-controller="SubCtrl as sc">{{sc.hello_message}}</div>
+
+  <script src="libs.js"> </script>
+  <script src="app.js"> </script>
+</body>
+</html>

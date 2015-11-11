@@ -2,7 +2,9 @@
   'use strict';
 
   angular
-  .module('fitnessTracker', [])
+  .module('fit', [
+    'fit.home',
+  ])
   .controller('MainCtrl', MainController)
   .controller('SubCtrl', SubController)
 

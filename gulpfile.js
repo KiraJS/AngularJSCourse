@@ -7,7 +7,10 @@ var ngAnnotate = require('gulp-ng-annotate');
 var webserver = require('gulp-webserver');
 
 gulp.task('js', function(){
-  gulp.src('builds/dev/app/**/*.js')
+  gulp.src([
+    'builds/dev/app/**/*.js',
+    '!builds/dev/app/**/*_test.js'
+  ])
   .pipe(concat('app.js'))
   .pipe(ngAnnotate())
   .pipe(gulp.dest('builds/dev'));

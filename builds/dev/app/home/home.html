@@ -1,4 +1,57 @@
 <div class="jumbotron">
   <h1>Home page</h1>
   <button class="btn btn-primary" ng-click="addAlert('New Alert')">Add alert</button>
+  <input class="form-control" ng-model="qwery" type="text">
+  <table class="table">
+    <thead>
+      <tr>
+        <th>
+          #
+        </th>
+        <th>
+          Name
+        </th>
+        <th>
+          <span on-toggle="toggled(open)" uib-dropdown>
+            <a href id="simple-dropdown" uib-dropdown-toggle>
+              Color eye
+            </a>
+            <ul aria-labelledby="simple-dropdown" class="uib-dropdown-menu">
+              <li ng-repeat="color in hc.eyeColor">
+                <a href ng-click="hc.changeColor(color)">{{color}}</a>
+              </li>
+            </ul>
+          </span>
+        </th>
+        <th>
+          Age
+        </th>
+        <th>
+          Date
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr ng-repeat="user in hc.users | filter: {eyeColor: hc.curentColor} : false">
+        <td>
+          {{$index+1}}
+        </td>
+        <td>
+          {{user.name | uppercase}}
+        </td>
+        <td>
+          {{user.eyeColor | eye}}
+        </td>
+        <td>
+          {{user.age | currency}}
+        </td>
+        <td>
+          {{hc.date | date: 'dd/mm/yyyy'}}
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <!--   <pre>
+  {{hc.users | json}}
+</pre> -->
 </div>

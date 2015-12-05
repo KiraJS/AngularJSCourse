@@ -13,10 +13,20 @@
      * About Controller
      */
     // @ngInject
-    function AboutController($log, $rootScope)
+    function AboutController($log, $rootScope, Value, CONSTANT)
     {
       $log.debug('AboutController');
       var s = this;
+
+      console.log('CONSTANT' ,  CONSTANT);
+      CONSTANT = "This is AboutCtrl"
+      console.log('CONSTANT ' ,  CONSTANT);
+
+      console.log('Value ', Value.val);
+      Value.val = "This is AboutCtrl"
+      console.log('Value ', Value.val);
+
+
       $rootScope.currentPage = 'about';
 
     }

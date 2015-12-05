@@ -8,10 +8,63 @@
       'fit.home',
       'fit.about',
     ])
+    .constant('CONSTANT', 'This is constant')
+    .value('Value', {'val': 'This is value'})
+    .factory('MainFactory', MainFactory)
+    .service('MainService', MainService)
     .controller('MainCtrl', MainController)
     .controller('SubCtrl', SubController)
     .run(MainRun)
     .config(MainConfig);
+
+    // @ngInject
+    function MainService() {
+
+      // Private
+      var number = 0;
+      var fn = function() {
+
+      };
+      // Public
+
+      this.plus = function() {
+        this.count = ++number;
+        return this;
+      }/* Plus Number*/
+
+      this.minus = function() {
+        this.count = --number;
+        return this;
+      }/* Minus Number*/
+    }
+
+
+    // @ngInject
+    function MainFactory() {
+      var o = {
+        count: number,
+        plus: plus,
+        minus: minus
+      };
+      // Private
+      var number = 0;
+      var fn = function() {
+
+      };
+      // Public
+
+      function plus() {
+        this.count = ++number;
+        return this;
+      }/* Plus Number*/
+
+      function minus() {
+        this.count = --number;
+        return this;
+      }/* Minus Number*/
+
+      return o;
+    }
 
     // @ngInject
     function MainController ($rootScope) {
@@ -54,3 +107,23 @@
     }
 
 })();
+
+
+var Singleton;
+Singleton = (function(){
+  var instance;
+  instance = {
+    count: 0
+  };
+  return function(){
+    return instance;
+  }
+}())
+
+var sin1, sin2;
+sin1 = new Singleton();
+sin2 = new Singleton();
+
+console.log(sin1 === sin2);
+console.log(sin1.count === sin2.count);
+console.log(sin1.constructor === sin2.constructor);

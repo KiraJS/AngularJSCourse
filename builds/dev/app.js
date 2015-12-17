@@ -3,11 +3,15 @@
 
   angular
     .module('fit', [
-      'ngRoute',
+      'ui.router',
       'ui.bootstrap',
       'fit.home',
       'fit.about',
+      'fit.dbc',
+      'fit.users',
+      'fit.registration',
     ])
+    .constant('FURL', 'https://angjscourse.firebaseio.com/')
     .constant('CONSTANT', 'This is constant')
     .value('Value', {'val': 'This is value'})
     .factory('MainFactory', MainFactory)
@@ -30,12 +34,12 @@
       this.plus = function() {
         this.count = ++number;
         return this;
-      }/* Plus Number*/
+      }/* Plus Number*/;
 
       this.minus = function() {
         this.count = --number;
         return this;
-      }/* Minus Number*/
+      }/* Minus Number*/;
     }
 
 
@@ -102,13 +106,13 @@
     MainRun.$inject = ["$log", "$rootScope"];
 
     // @ngInject
-    function MainConfig ($routeProvider, $logProvider) {
+    function MainConfig ($urlRouterProvider, $logProvider) {
       console.log('Main Config');
-      $routeProvider.otherwise({ redirectTo: '/' });
+      $urlRouterProvider.otherwise('/');
       $logProvider.debugEnabled(false);
 
     }
-    MainConfig.$inject = ["$routeProvider", "$logProvider"];
+    MainConfig.$inject = ["$urlRouterProvider", "$logProvider"];
 
 })();
 
@@ -121,8 +125,8 @@ Singleton = (function(){
   };
   return function(){
     return instance;
-  }
-}())
+  };
+}());
 
 var sin1, sin2;
 sin1 = new Singleton();
@@ -137,9 +141,10 @@ console.log(sin1.constructor === sin2.constructor);
 
   angular
     .module('fit.about', [
-      'ngRoute'
     ])
     .controller('AboutCtrl', AboutController)
+    .controller('Page1Ctrl', Page1Controller)
+
     .run(/*@ngInject*/["$log", function($log){$log.debug('About Run')}])
     .config(AboutConfig);
 
@@ -147,35 +152,105 @@ console.log(sin1.constructor === sin2.constructor);
      * About Controller
      */
     // @ngInject
-    function AboutController($log, $rootScope, Value, CONSTANT)
+    function AboutController($log, $rootScope, Value, CONSTANT, $state, $stateParams)
     {
       $log.debug('AboutController');
       var s = this;
 
+
       console.log('CONSTANT' ,  CONSTANT);
-      CONSTANT = "This is AboutCtrl"
+      CONSTANT = "This is AboutCtrl";
       console.log('CONSTANT ' ,  CONSTANT);
 
       console.log('Value ', Value.val);
-      Value.val = "This is AboutCtrl"
+      Value.val = "This is AboutCtrl";
       console.log('Value ', Value.val);
 
 
       $rootScope.currentPage = 'about';
 
     }
-    AboutController.$inject = ["$log", "$rootScope", "Value", "CONSTANT"];
+    AboutController.$inject = ["$log", "$rootScope", "Value", "CONSTANT", "$state", "$stateParams"];
 
     // @ngInject
-    function AboutConfig ($routeProvider) {
-      console.log('About Config');
-      $routeProvider
-        .when('/about', {
-          templateUrl: 'app/about/about.html',
-          controller: 'AboutCtrl'
-        });
+    function Page1Controller($scope)
+    {
+      var s = this;
+      $scope.$on('broadcastExample', function(e, msg){
+        console.warn('broadcastExample catched in Page1Ctrl with data', msg.msg);
+      });
+      $scope.scope = 'page1';
+      $scope.$emit('page1Event', "Hello from page1");
     }
-    AboutConfig.$inject = ["$routeProvider"];
+    Page1Controller.$inject = ["$scope"];
+
+
+    // @ngInject
+function AboutConfig ($stateProvider) {
+  console.log('About Config');
+  $stateProvider
+    .state('about', {
+      url: '/about',
+      templateUrl: 'app/about/about.html',
+      controller: 'AboutCtrl',
+      authenticate: false
+    })
+    .state('about.page1', {
+      url:'/page1',
+      controller: 'Page1Ctrl',
+      templateUrl: 'app/about/about.page1.html',
+      authenticate: true
+    })
+    .state('about.page2', {
+      url:'/page2',
+      templateUrl: 'app/about/about.page2.html',
+      authenticate: true
+    })
+    .state('about.page3', {
+      url:'/page3',
+      templateUrl: 'app/about/about.page3.html',
+      authenticate: true
+    })
+}
+AboutConfig.$inject = ["$stateProvider"];
+
+
+})();
+
+;(function(){
+  'use strict';
+
+  angular.module('fit.dbc', [
+    'firebase',
+  ])
+  .factory('dbc', dbcFactory)
+
+  // @ngInject
+  function dbcFactory(FURL, $firebaseAuth)
+  {
+    var o = {};
+    var ref = new Firebase(FURL);
+    var auth = $firebaseAuth(ref);
+
+    o.getRef = function(){
+      return ref;
+    }
+
+    o.get$Auth = function(){
+      return auth;
+    }
+
+    o.getAuth = function(){
+      return ref.getAuth();
+    }
+
+    o.isLogin = function(){
+      return ref.getAuth().$getAuth();
+    }
+
+    return o;
+  }
+  dbcFactory.$inject = ["FURL", "$firebaseAuth"];
 
 })();
 
@@ -1057,16 +1132,17 @@ console.log(sin1.constructor === sin2.constructor);
     HomeController.$inject = ["$scope", "$log", "$rootScope", "Value", "CONSTANT", "MainFactory", "MainService"];
 
     // @ngInject
-    function HomeConfig ($routeProvider) {
+    function HomeConfig ($stateProvider) {
       console.log('Home Config');
-      $routeProvider
-        .when('/', {
+      $stateProvider
+        .state('home', {
+          url: '/home',
           templateUrl: 'app/home/home.html',
           controller: 'HomeCtrl',
           controllerAs: 'hc'
         });
     }
-    HomeConfig.$inject = ["$routeProvider"];
+    HomeConfig.$inject = ["$stateProvider"];
 
     // @ngInject
     function EyeFilter() {
@@ -1090,3 +1166,286 @@ console.log(sin1.constructor === sin2.constructor);
 
 })();
 
+
+;(function(){
+  'use strict';
+
+  angular.module('fit.registration', [
+    'fit.dbc',
+    'fit.users',
+  ])
+  .config(registrationConfig)
+  .controller('RegistrationCtrl', RegistrationController)
+  .factory('registration', registrationFactory)
+
+
+  // @ngInject
+  function RegistrationController(registration, $rootScope)
+  {
+    var s = this;
+    $rootScope.currentPage = 'registration';
+
+    s.signinUser = {
+      email: null,
+      password: null
+    };
+
+    s.signin = function(){
+      registration.signin(s.signinUser).then(function(){
+
+      });
+    }
+
+    s.signupUser = {
+      email: null,
+      password: null,
+      name: null,
+      surname: null
+    };
+
+    s.signup = function(){
+    registration.signup(s.signupUser).then(function(){
+
+      });
+    }
+
+  }
+  RegistrationController.$inject = ["registration", "$rootScope"];
+
+  // @ngInject
+  function registrationFactory(dbc, $rootScope, users){
+    var o = {};
+    var auth = dbc.get$Auth();
+
+    $rootScope.logout = function(){
+      auth.$unauth();
+    };
+
+    auth.$onAuth(function(authData){
+      if (authData) {// Logged in
+        console.log('$onAuth: Logged in ', authData);
+        users.getUser(authData.uid).then(function(_user){
+          $rootScope.currentUser = {
+            loggedIn: true,
+            fullname: _user.name + ' ' + _user.surname
+          };
+        })
+      }else{// Logged out
+        console.log('$onAuth: Logged out');
+        $rootScope.currentUser = {
+          loggedIn: false,
+          fullname: null
+        };
+      }
+    });
+
+    o.signin = function(_user){
+      return auth.$authWithPassword(_user);
+    }
+
+    o.signup = function(_user){
+      return auth.$createUser({
+        email   : _user.email,
+        password: _user.password
+      }).then(function(userData){
+        console.log('User ' + userData.uid + ' created successfully!');
+        var userRef = dbc.getRef().child('users').child(userData.uid);
+        userRef.set({
+          name: _user.name,
+          surname: _user.surname,
+          email: _user.email,
+          registered: Firebase.ServerValue.TIMESTAMP,
+          last_visit: Firebase.ServerValue.TIMESTAMP
+        });
+        return auth.$authWithPassword({
+          email   : _user.email,
+          password: _user.password
+        });
+      });
+    }
+
+    return o;
+  }
+  registrationFactory.$inject = ["dbc", "$rootScope", "users"];
+
+  // @ngInject
+  function registrationConfig($stateProvider){
+    console.log('Registration Config')
+    $stateProvider
+    .state('signin', {
+      url: '/signin',
+      authenticate: true,
+      templateUrl: 'app/registration/signin.html',
+      controller: 'RegistrationCtrl',
+      controllerAs: 'rc'
+
+    })
+    .state('signup', {
+        url: '/signup',
+        templateUrl: 'app/registration/signup.html',
+        controller: 'RegistrationCtrl',
+        authenticate: true,
+
+        controllerAs: 'rc'
+
+      });
+  }
+  registrationConfig.$inject = ["$stateProvider"];
+
+})();
+
+;(function(){
+  'use strict';
+
+  angular
+    .module('fit.users', [
+      'fit.dbc',
+    ])
+  .config(usersConfig)
+
+  // @ngInject
+  function usersConfig($stateProvider){
+    console.log('Users Config')
+    $stateProvider
+      .state('users', {
+        url: '/',
+        templateUrl: 'app/users/users.html',
+        controller: 'UsersCtrl',
+        controllerAs: 'uc'
+      });
+  }
+  usersConfig.$inject = ["$stateProvider"];
+
+})();
+
+;(function(){
+  'use strict';
+
+  angular
+    .module('fit.users')
+    .controller('UsersCtrl', usersCtrlFunction)
+
+
+  // @ngInject
+  function usersCtrlFunction($rootScope, users){
+    var s = this;
+    $rootScope.currentPage = 'users';
+
+    s.editUser = function(_user){
+      console.log(_user);
+      s.editFormShow = true;
+      s.editingUser = {
+        id: _user.$id,
+        name: _user.name,
+        surname: _user.surname
+      };
+    };
+
+    s.saveUser = function(){
+      users.saveUser(s.editingUser).then(function(){
+        s.cancelEditUser();
+      });
+    }
+
+    s.removeUser = function(){
+      users.deleteUser(s.editingUser.id).then(function(){
+        s.cancelEditUser();
+      })
+    }
+
+    s.cancelEditUser = function(){
+      s.editFormShow = false;
+      s.editingUser = {
+        id: null,
+        name: null,
+        surname: null
+      };
+    }
+    s.cancelEditUser();
+
+    s.createUser = function(){
+      users.createBlankUser().then(function(_d){
+        s.editUser(_d);
+      })
+    }
+
+    s.users = [];
+    users.getUsers().then(function(_data){
+      s.users = _data;
+    })
+  }
+  usersCtrlFunction.$inject = ["$rootScope", "users"];
+
+})();
+
+;(function(){
+  'use strict';
+
+  angular
+    .module('fit.users')
+    .factory('users', usersFactory)
+
+  // @ngInject
+  function usersFactory ($q, $http, dbc, $firebaseArray, $firebaseObject) {
+    var o = {};
+    var ref = dbc.getRef();
+    var usersRef = ref.child('users');// new Firebase(FURL + 'users/')
+
+    var users = null;
+
+    o.getUsers = function(){
+      return $firebaseArray(usersRef).$loaded(function(_d){
+        console.log("got users list with length:", _d.length);
+        return _d;
+      });
+    };
+
+    o.getUser = function(_id){
+      return $firebaseObject(usersRef.child(_id)).$loaded();
+    };
+
+    o.saveUser = function(_user){
+      var user = $firebaseObject(usersRef.child(_user.id));
+      return user.$loaded(function(_dbuser){
+        _dbuser.name = _user.name;
+        _dbuser.surname = _user.surname;
+        return _dbuser.$save();
+      });
+    };
+
+    o.deleteUser = function(_id){
+      return $firebaseObject(usersRef.child(_id)).$remove();
+    }
+
+    o.createBlankUser = function(){
+      return $firebaseArray(usersRef).$add({
+        name: '',
+        surname: '',
+        registered: Firebase.ServerValue.TIMESTAMP,
+        last_visit: Firebase.ServerValue.TIMESTAMP
+      }).then(function(_ref){
+        return $firebaseObject(_ref).$loaded();
+      });
+
+      // loaded(function(_d){
+      //   console.log("got users list with length:", _d.length);
+      //   return _d;
+      // });
+    }
+
+    /*
+      var deferred = $q.defer();
+      setTimeout(function(){
+        deferred.notify('Users Notify!');
+        if(Math.random()>0.5)
+          deferred.resolve('Users Resolved!');
+        else
+          deferred.reject('Users Rejected!');
+      },2000);
+      return deferred.promise;
+    */
+
+    return o;
+  }
+  usersFactory.$inject = ["$q", "$http", "dbc", "$firebaseArray", "$firebaseObject"];
+})();

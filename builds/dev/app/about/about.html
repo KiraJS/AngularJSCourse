@@ -1,4 +1,24 @@
-<!-- Main component for a primary marketing message or call to action -->
 <div class="jumbotron">
-  <h1>About example</h1>
+  <h1>About page</h1>
+
+  <div class="row">
+    <a ui-sref="about.page1"
+       ui-sref-active="btn-danger"
+       class="btn btn-primary">
+      Page 1
+    </a>
+    <a ui-sref="about.page2"
+       ui-sref-active="btn-warning"
+       class="btn btn-primary">
+      Page 2
+    </a>
+    <a ui-sref="about.page3"
+       ui-sref-active="btn-success"
+       class="btn btn-primary">
+      Page 3
+    </a>
+  </div>
+  <div class="row">
+    <ui-view></ui-view>
+  </div>
 </div>

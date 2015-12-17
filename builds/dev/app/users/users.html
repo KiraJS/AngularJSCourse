@@ -1,0 +1,34 @@
+<form ng-show="uc.editFormShow" name="editUser">
+  <div class="form-group">
+    <label for="nameEdit">Name</label>
+    <input type="text" class="form-control" id="nameEdit" placeholder="Ivan" ng-model="uc.editingUser.name">
+  </div>
+  <div class="form-group">
+    <label for="surnameEdit">Surname</label>
+    <input type="text" class="form-control" id="surnameEdit" placeholder="Ivanov" ng-model="uc.editingUser.surname">
+  </div>
+  <button type="submit" class="btn btn-success" ng-click="uc.saveUser()">Save</button>
+  <button type="submit" class="btn btn-default" ng-click="uc.cancelEditUser()">Cancel</button>
+  <button type="submit" class="btn btn-danger pull-right" ng-click="uc.removeUser()">Delete</button>
+</form>
+
+<button class="btn btn-primary" ng-click="uc.createUser()">Create user</button>
+
+<table class="table table-hover users-table">
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>Fullname</th>
+      <th>Registered</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr ng-repeat="user in uc.users"
+        ng-click="uc.editUser(user)"
+    >
+      <td>{{$index+1}}</td>
+      <td>{{user.name}} {{user.surname}}</td>
+      <td>{{user.registered}}</td>
+    </tr>
+  </tbody>
+</table>

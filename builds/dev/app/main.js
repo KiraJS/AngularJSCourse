@@ -3,11 +3,15 @@
 
   angular
     .module('fit', [
-      'ngRoute',
+      'ui.router',
       'ui.bootstrap',
       'fit.home',
       'fit.about',
+      'fit.dbc',
+      'fit.users',
+      'fit.registration',
     ])
+    .constant('FURL', 'https://angjscourse.firebaseio.com/')
     .constant('CONSTANT', 'This is constant')
     .value('Value', {'val': 'This is value'})
     .factory('MainFactory', MainFactory)
@@ -30,12 +34,12 @@
       this.plus = function() {
         this.count = ++number;
         return this;
-      }/* Plus Number*/
+      }/* Plus Number*/;
 
       this.minus = function() {
         this.count = --number;
         return this;
-      }/* Minus Number*/
+      }/* Minus Number*/;
     }
 
 
@@ -99,9 +103,9 @@
     }
 
     // @ngInject
-    function MainConfig ($routeProvider, $logProvider) {
+    function MainConfig ($urlRouterProvider, $logProvider) {
       console.log('Main Config');
-      $routeProvider.otherwise({ redirectTo: '/' });
+      $urlRouterProvider.otherwise('/');
       $logProvider.debugEnabled(false);
 
     }
@@ -117,8 +121,8 @@ Singleton = (function(){
   };
   return function(){
     return instance;
-  }
-}())
+  };
+}());
 
 var sin1, sin2;
 sin1 = new Singleton();

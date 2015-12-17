@@ -13,7 +13,7 @@
     <uib-alert ng-repeat="alert in alerts" type="{{alert.type}}" close="closeAlert($index)">{{alert.msg}}</uib-alert>
   </div>
 
-  <div class="container" ng-view></div>
+  <div class="container" ui-view></div>
 
   <!--
   <p>{{root}}</p>

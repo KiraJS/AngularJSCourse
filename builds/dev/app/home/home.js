@@ -875,10 +875,11 @@
     }
 
     // @ngInject
-    function HomeConfig ($routeProvider) {
+    function HomeConfig ($stateProvider) {
       console.log('Home Config');
-      $routeProvider
-        .when('/', {
+      $stateProvider
+        .state('home', {
+          url: '/home',
           templateUrl: 'app/home/home.html',
           controller: 'HomeCtrl',
           controllerAs: 'hc'
